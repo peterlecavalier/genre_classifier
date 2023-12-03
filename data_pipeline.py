@@ -3,7 +3,7 @@ import tensorflow as tf
 import tensorflow_io as tfio
 
 class DataGen():
-    def __init__(self, df, sample_rate=44100, seconds=1, shuffle=True):
+    def __init__(self, df, sample_rate=44100, seconds=3, batch_size=32, shuffle=True):
         self.df = np.array(df.loc[:, ['parent_genre_id', 'fpath']])
         self.sample_rate = sample_rate
         self.seconds = seconds
@@ -12,14 +12,17 @@ class DataGen():
         self.indices = tf.range(0, self.data_size, delta=1)
         if shuffle:
             self.indices = tf.random.shuffle(self.indices)
+        self.batch_size = batch_size
+    
+    def __len__(self):
+        return self.df.shape[0]//self.batch_size
     
     def get_sample(self, x):
         fpath = './data/fma_medium' + self.df[x][-1]
         #print(fpath)
         audio = tfio.audio.AudioIOTensor(fpath)
-        shape = audio.shape
-        start_idx = tf.random.uniform(shape=[], minval=0, maxval=shape[0] - self.dim,
-                                      dtype=tf.int64)
+        shape = tf.cast(audio.shape, tf.dtypes.int32)
+        start_idx = tf.random.uniform(shape=[], minval=0, maxval=shape[0] - self.dim, dtype=tf.dtypes.int32)
         audio_slice = audio[start_idx:start_idx + self.dim]
         # Convert to one channel
         # either by averaging stereo channels or removing extra dim on mono
@@ -30,7 +33,7 @@ class DataGen():
         
         # Make a spectrogram and clip off values to get 512x512 image
         # Original image will be 517x513 so this doesn't affect much.
-        spectrogram = tfio.audio.spectrogram(audio_tensor, nfft=1024, window=512, stride=86)[:512, :512]
+        spectrogram = tfio.audio.spectrogram(audio_tensor, nfft=1024, window=512, stride=256)[:512, :512] # 86 stride for 1sec
         spectrogram = tf.math.log(spectrogram)
 
         ##### Replace all infinite values with the mean of non-infinite values
