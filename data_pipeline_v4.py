@@ -20,6 +20,4 @@ class DataGen():
         shape = audio.shape
         start_idx = tf.random.uniform(shape=[], minval=0, maxval=shape[0] - self.dim, dtype=tf.dtypes.int32)
         audio = audio[start_idx:start_idx+self.dim]
-        #output = tf.cast(audio, tf.dtypes.float32)
-        #return output, label
         return audio, label
