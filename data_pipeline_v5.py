@@ -13,13 +13,13 @@ class DataGen():
         self.sample_rate = sample_rate
         self.seconds = seconds
         self.dim = int(self.sample_rate * self.seconds)
+        self.total_dim = self.dim * 9
     
     def get_sample(self, fpath, label):
         fpath = fpath.numpy()
-        audio = np.load(fpath, mmap_mode='r', allow_pickle=True)
-        shape = audio.shape
-        start_idx = tf.random.uniform(shape=[], minval=0, maxval=shape[0] - self.dim, dtype=tf.dtypes.int32)
-        audio = audio[start_idx:start_idx+self.dim]
+        audio = np.load(fpath, allow_pickle=True)
+        audio = audio[:self.total_dim]
+        audio = tf.reshape(audio, (9, self.dim, 128))
         #output = tf.cast(audio, tf.dtypes.float32)
         #return output, label
         return audio, label

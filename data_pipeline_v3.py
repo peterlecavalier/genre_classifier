@@ -26,7 +26,7 @@ class DataGen():
         #print(fpath)
         audio = np.load(fpath, mmap_mode='r', allow_pickle=True)
         shape = audio.shape
-        start_idx = tf.random.uniform(shape=[], minval=0, maxval=shape[1] - self.dim, dtype=tf.dtypes.int32)
-        audio = tf.transpose(audio[:, start_idx:start_idx+self.dim])
+        start_idx = tf.random.uniform(shape=[], minval=0, maxval=shape[0] - self.dim, dtype=tf.dtypes.int32)
+        audio = audio[start_idx:start_idx+self.dim]
         output = tf.cast(audio, tf.dtypes.float32)
         return output, self.df[x][0]
