@@ -1,7 +1,5 @@
 import numpy as np
 import tensorflow as tf
-import tensorflow_io as tfio
-from soundfile import read as sf_read
 
 '''
 This class allows preprocessing of the data to be used with
